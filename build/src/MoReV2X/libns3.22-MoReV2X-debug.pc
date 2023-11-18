@@ -1,0 +1,10 @@
+prefix=/usr/local
+libdir=/usr/local/lib
+includedir=/usr/local/include/ns3.22
+
+Name: libns3-MoReV2X
+Description: ns-3 module ns3-MoReV2X
+Version: 3.22
+Libs: -L${libdir} -Wl,-Bdynamic -lns3.22-MoReV2X-debug
+Cflags: -I${includedir}
+Requires: libns3.22-network-debug libns3.22-antenna-debug libns3.22-buildings-debug libns3.22-lte-debug
