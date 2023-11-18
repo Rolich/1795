@@ -399,6 +399,7 @@ NrV2XUeMac::GetTypeId (void)
                                         BooleanValue (false),
                                         MakeBooleanAccessor (&NrV2XUeMac::m_oneShot),
                                         MakeBooleanChecker ())
+                                    
 		.AddAttribute ("RSRPthreshold",
 					"The RSRP threshold used for excluding reserved resources",
 					DoubleValue (-128.0),
@@ -424,6 +425,12 @@ NrV2XUeMac::GetTypeId (void)
 					DoubleValue (1.0),
 					MakeDoubleAccessor (&NrV2XUeMac::m_slotDuration),
 					MakeDoubleChecker<double> ())
+    //added by Alexey Rolich
+    .AddAttribute ("keepProbability",
+                                        "Probability of persistance",
+                                        DoubleValue (0.8),
+                                        MakeDoubleAccessor (&NrV2XUeMac::m_keepProbability),
+                                        MakeDoubleChecker<double> ())  
 		.AddAttribute ("NumerologyIndex",
 					"The NR-V2X numerology index",
 					UintegerValue (0),
@@ -492,7 +499,7 @@ NrV2XUeMac::NrV2XUeMac ()
    m_L_SubCh (1),
 //   m_BW_RBs (50),
    m_maxPDB(110.0),
-   m_keepProbability (0.0),
+   //m_keepProbability (0.2),
    m_sizeThreshold (0.2),
    m_sensingWindow (1100),
    m_oneShotGrant (false)
@@ -2808,7 +2815,7 @@ NrV2XUeMac::DoSubframeIndication (uint32_t frameNo, uint32_t subframeNo)
              if (m_evalKeepProb->GetValue() > (1-m_keepProbability))
              {
                NS_LOG_UNCOND("Keep the same resources");
-               std::cin.get();
+               //std::cin.get();
                poolIt->second.m_currentV2XGrant.m_Cresel = GetCresel(poolIt->second.m_currentV2XGrant.m_RRI);
              }
              else
@@ -2832,6 +2839,7 @@ NrV2XUeMac::DoSubframeIndication (uint32_t frameNo, uint32_t subframeNo)
        if (allocIter != poolIt->second.m_v2xTx.end() && allocIter->subframe.frameNo == frameNo && allocIter->subframe.subframeNo  == subframeNo)
        {
          NS_LOG_UNCOND("Now: " << Simulator::Now().GetSeconds()*1000 << " ms: Ok, now I should transmit data, Frame no. " << frameNo << ", Subframe no. " << subframeNo);
+          NS_LOG_UNCOND("Now: P_keep " << m_keepProbability << "");
 	 NistV2XSciListElement_s sci1;
 	 sci1.m_rnti = m_rnti;
          sci1.m_genTime = itBsr->second.V2XGenTime;
@@ -3806,6 +3814,7 @@ NrV2XUeMac::V2XChangeResources (V2XSidelinkGrant OriginalGrant, std::vector<uint
      secondSelectedSF = SecondSelectedResource.subframe;
 
      NS_LOG_DEBUG("Now: UE " << m_rnti << " at SF(" << currentSF.frameNo << "," << currentSF.subframeNo << ") Selected CSR index " << secondSelectedCSR << " at SF(" << secondSelectedSF.frameNo << "," << secondSelectedSF.subframeNo << "). Adjusted to SF(" << secondSelectedSF.frameNo+1 << "," << secondSelectedSF.subframeNo+1 << ")");
+     
 
      V2XSchedulingInfo firstSelection, secondSelection;
      secondSelection.m_rbLenPssch = nbRb_Pssch;

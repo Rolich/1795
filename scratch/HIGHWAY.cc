@@ -526,7 +526,7 @@ main (int argc, char *argv[])
   uint32_t pscchLength = 8;
   std::string period="sf40";
   simTime = 30;
-  double ueTxPower = 23.0; // [dBm]
+  double ueTxPower = 13.0; // [dBm]
   uint32_t ueCount = 4; // Number of V-UEs 
   bool verbose = true;
   enableUDPfiles = false;
@@ -535,7 +535,9 @@ main (int argc, char *argv[])
   uint16_t channelBW = 10; //In MHz, default
   uint16_t channelBW_RBs;
   uint32_t subchannelSize = 10; //Default
-  uint32_t highwayLength = 5000;
+  uint32_t highwayLength = 4000;
+
+  double keepProbability = 0.7; //P_keep default
 
   bool IBE = true;
 
@@ -637,6 +639,9 @@ main (int argc, char *argv[])
   cmd.AddValue ("FreqReuse", "Enable the frequency-reuse strategy", FrequencyReuse); 
   cmd.AddValue ("ReuseDist", "Set the reuse distance", ReuseDistance); 
 
+  cmd.AddValue ("Pkeep", "Set probability of presistance", keepProbability); 
+
+
 
  // cmd.AddValue ("Sens", "The reference sensitivity", RefSensitivity); 
 
@@ -656,8 +661,9 @@ main (int argc, char *argv[])
 
   NS_LOG_UNCOND("Channel BW = " << channelBW << " MHz. Channel BW = " << channelBW_RBs << " RBs. Subchannel size = " << subchannelSize << " RBs");
 
-  //RefSensitivity = GetRefSensitivity(15*SCS_factor[OFDM_numerology], channelBW);
-  RefSensitivity = -103.5;
+  //efSensitivity = GetRefSensitivity(15*SCS_factor[OFDM_numerology], channelBW);
+  //std::cout << (RefSensitivity);
+  RefSensitivity = -92.5;
   
 //  CBR_RSSIthreshold = GetRSSIthreshold(RefSensitivity);
   CBR_RSSIthreshold = -88.0;
@@ -804,6 +810,8 @@ main (int argc, char *argv[])
   readme << " - Periodic traffic = " << PeriodicTraffic << std::endl;
   readme << " - Aperiodic traffic = " << AperiodicTraffic << std::endl;
   readme << " - Mixed traffic = " << MixedTraffic << std::endl;
+  readme << " - Probability of persistance = " << keepProbability << std::endl;
+  readme << " - TX Power [dbm] = " << ueTxPower << std::endl;
   if (MixedTraffic)
   {
     readme << " --- Periodic users = " << PeriodicPercentage << "%" << std::endl;
@@ -891,7 +899,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::NrV2XUeMac::AdaptiveScheduling", BooleanValue (AdaptiveSchedulingMode2));
   Config::SetDefault ("ns3::NrV2XUeMac::UMHReEvaluation", BooleanValue (UMH_ReEvaluation));
   Config::SetDefault ("ns3::NrV2XUeMac::FrequencyReuse", BooleanValue (FrequencyReuse));
-
+  Config::SetDefault ("ns3::NrV2XUeMac::keepProbability", DoubleValue (keepProbability));
 
   // Configure Power Control and Phy layer
   Config::SetDefault ("ns3::NrV2XUePhy::TxPower", DoubleValue (ueTxPower));
@@ -925,7 +933,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::NrV2XSpectrumPhy::OutputPath", StringValue (outputPath)); 
   // Configure the saving period------------------------------------------------------------------------------------
   // Tradeoff between speed of the simulation and memory requirements
-  double SavingPeriod = 2.0;
+  double SavingPeriod = 0.1; //each 600 ms write to log
   Config::SetDefault ("ns3::NrV2XUeMac::SavingPeriod", DoubleValue (SavingPeriod)); 
   Config::SetDefault ("ns3::NrV2XUePhy::SavingPeriod", DoubleValue (SavingPeriod)); 
   Config::SetDefault ("ns3::NrV2XSpectrumPhy::SavingPeriod", DoubleValue (SavingPeriod)); 
@@ -1033,6 +1041,7 @@ main (int argc, char *argv[])
     lteNode -> AggregateObject(nodeState);  // Aggregate two objects together. Now it's possible to call GetObject() on one to get the other and vice-versa.
     ueResponders.Add(lteNode);
   }
+  
  
   MobilityHelper mobilityUE;
 
@@ -1053,8 +1062,18 @@ main (int argc, char *argv[])
 //    double xPos = pospos;
 //    pospos += GeoCellSize;
 //    xPos += 2000;
+    //for 2 node only 
+    //xPos = 0;
+    //yPos = 4;
+    //if (L == (--ueResponders.End()))
+    //  {
+    //      xPos = 0; // Set the X position to your desired value for the last node
+    //      yPos = 8; // Set the Y position to your desired value for the last node
+    //  }
     positionAlloc ->Add(Vector(xPos, yPos, 0)); 
   }
+
+
   mobilityUE.SetPositionAllocator(positionAlloc);
   mobilityUE.SetMobilityModel("ns3::ConstantVelocityMobilityModel");
   //mobilityUE->SetVelocity({20,0,0});
@@ -1066,13 +1085,29 @@ main (int argc, char *argv[])
     Ptr<MobilityModel> mob = node->GetObject<MobilityModel> ();
     Ptr<ConstantVelocityMobilityModel> VelMob = node->GetObject<ConstantVelocityMobilityModel>();
     if (mob->GetPosition().y > 13)
-      VelMob->SetVelocity(Vector(19.44, 0, 0));     
+      VelMob->SetVelocity(Vector(-19.44, 0, 0));     
 //      VelMob->SetVelocity(Vector(0, 0, 0));     
     else
-      VelMob->SetVelocity(Vector(-19.44, 0, 0));
+      VelMob->SetVelocity(Vector(19.44, 0, 0));
+      //if (L == (--ueResponders.End()))
+      //{
+      //    VelMob->SetVelocity(Vector(0, 0, 0));
+      //}
 //      VelMob->SetVelocity(Vector(0, 0, 0));          
   }
   
+/*create a static node
+    Ptr<Node> lteNode = CreateObject<Node> ();
+    // LTENodeState is a new class developed from scratch. Defined before the main()
+    Ptr<LTENodeState> nodeState = CreateObject<LTENodeState> ();
+    nodeState -> SetNode(lteNode);
+    lteNode -> AggregateObject(nodeState);  // Aggregate two objects together. Now it's possible to call GetObject() on one to get the other and vice-versa.
+    ueResponders.Add(lteNode);
+    double yPos = 4;
+    double xPos = 0;
+    positionAlloc ->Add(Vector(0, 4, 0));*/
+  
+
 /*  MobilityHelper mobilityUE;
   Ptr<ListPositionAllocator> positionAlloc = CreateObject <ListPositionAllocator>();
   positionAlloc ->Add(Vector(0, 0, 0)); 
@@ -1239,9 +1274,9 @@ main (int argc, char *argv[])
          if (inputPDB != 0)
            PDB_Periodic.push_back(inputPDB);
          else
-           PDB_Periodic.push_back(20);
+           PDB_Periodic.push_back(100);
 //           PDB_Periodic.push_back(20);
-         Periodic_Tgen.push_back(20);
+         Periodic_Tgen.push_back(100);
 //         Periodic_Tgen.push_back(20);
        }
        else
@@ -1304,7 +1339,7 @@ main (int argc, char *argv[])
     if (PeriodicTraffic)
     {
       mac->PushNewRRIValue(100);
-      mac->PushNewRRIValue(20);
+      mac->PushNewRRIValue(100);
     }
     else if (AperiodicTraffic)
     {
