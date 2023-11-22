@@ -821,7 +821,7 @@ NrV2XSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
       totalPowerSpectrumPhy.close ();*/
 
       // Save the received signal power
-     /*Ptr<MobilityModel> tmpMobTX; 
+     Ptr<MobilityModel> tmpMobTX; 
       Ptr<Node> tmpTxNode;
       NodeContainer tmpGlobalContainer = NodeContainer::GetGlobal(); //Used to evaluate the transmitter-receiver distance at spectrum layer
       for (NodeContainer::Iterator L = tmpGlobalContainer.Begin(); L != tmpGlobalContainer.End(); ++L) 
@@ -833,7 +833,7 @@ NrV2XSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
           break;
         }
       }    
-      if  ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) {
+      /*if  ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) {
         std::ofstream RxPowerFile; 
         RxPowerFile.open(m_outputPath + "RxPowerFile.csv", std::ios_base::app);
         RxPowerFile << mobRX->GetDistanceFrom(tmpMobTX) << "," << totalPowerDbm << "," << totalPowerW << ',' << Simulator::Now()/100000 << std::endl;
@@ -860,7 +860,7 @@ NrV2XSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
         NS_LOG_INFO("Cannot receive this packet!");
         NodeContainer GlobalContainer = NodeContainer::GetGlobal(); //Used to evaluate the transmitter-receiver distance at spectrum layer
 //        if ((posRX.x >= 1500) && (posRX.x <= 3500) && ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) )
-        if ((posRX.x >= 700) && (posRX.x <= 3300) && ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) )
+        if ((posRX.x >= 1000) && (posRX.x <= 4000) && ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) )
         {
           Ptr<Node> TxNode;
           for (NodeContainer::Iterator L = GlobalContainer.Begin(); L != GlobalContainer.End(); ++L) 
@@ -1156,6 +1156,7 @@ NrV2XSpectrumPhy::StartRxV2XSlData (Ptr<NistLteSpectrumSignalParametersV2XSlFram
              //std::cout <<"UE ID " << GetDevice()->GetNode()->GetId() << " evaluated RSRP over " << rbLen << " RBs starting from " << rbMap.front() << ". Avg RSRP = " << avgRSRP_dBm << " dBm, RSSI = " << RSSI_dBm << " dBm \r\n";
              // 9dB is the noise figure
              NS_LOG_DEBUG("SNR RSRP = " << avgRSRP_dBm - (-174 + 9 + 10*std::log10(180000.0 / m_slotDuration / 12)) << " dB, SNR RSSI = " << RSSI_dBm - (-174 + 9 + 10*std::log10(180000.0 / m_slotDuration * rbLen) ) << " dB");
+             //std::cout <<"SNR RSRP = " << avgRSRP_dBm - (-174 + 9 + 10*std::log10(180000.0 / m_slotDuration / 12)) << " dB, SNR RSSI = " << RSSI_dBm - (-174 + 9 + 10*std::log10(180000.0 / m_slotDuration * rbLen) ) << " dB";
 
 //             NS_LOG_UNCOND("Noise: " << (-174 + 9 + 10*std::log10(180000.0 / m_slotDuration * rbLen) ) );
 //             std::cin.get();
@@ -1436,6 +1437,7 @@ NrV2XSpectrumPhy::EndRxV2XSlData ()
   for (uint16_t i = 0; i < m_expectedSlTbSNR.size(); i++)
   {
     NS_LOG_DEBUG("TX UE: " << m_expectedSlTbSNR[i].first << " received with SNR = " << 10*std::log10(m_expectedSlTbSNR[i].second) << " dB");
+    //std::cout<<"TX UE: " << m_expectedSlTbSNR[i].first << " received with SNR = " << 10*std::log10(m_expectedSlTbSNR[i].second) << " dB";
   }
   //Sort the received TBs SCI
 //  double tmpSINR, avgSINR; // in linear scale
@@ -1640,6 +1642,7 @@ NrV2XSpectrumPhy::EndRxV2XSlData ()
         SNR = m_expectedSlTbSNR[i].second;
       }
       NS_LOG_DEBUG("SNR = " << 10*std::log10(SNR) << " dB");
+      //std::cout<<"SNR = " << 10*std::log10(SNR) << " dB";
       NistTbErrorStats_t tbStats;
       NistTbErrorStats_t tbStatsPSCCH1;
 //      NistTbErrorStats_t tbStatsPSCCH2;
@@ -1920,7 +1923,7 @@ NrV2XSpectrumPhy::EndRxV2XSlData ()
                 }
 
 //                if ((posRX.x >= 1500) && (posRX.x <= 3500))
-                if ((posRX.x >= 700) && (posRX.x <= 3300))
+                if ((posRX.x >= 1000) && (posRX.x <= 4000))
                 {              
                   PacketStatus newRx;
                   newRx.rxTime = std::floor(Simulator::Now().GetSeconds()*100)/100;

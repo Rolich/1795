@@ -561,7 +561,7 @@ main (int argc, char *argv[])
   int inputPDB = 0;
 
   double RefSensitivity, CBR_RSSIthreshold;
-  double MAC_RSRPthreshold = -128.0;
+  double MAC_RSRPthreshold = -120.24;
 //  AperiodicPKTs_Size = packetSize;  // Can be set with a different dimension too.
 
   bool PeriodicTraffic = false;
@@ -663,10 +663,10 @@ main (int argc, char *argv[])
 
   //efSensitivity = GetRefSensitivity(15*SCS_factor[OFDM_numerology], channelBW);
   //std::cout << (RefSensitivity);
-  RefSensitivity = -92.5;
+  RefSensitivity = -78.56;
   
 //  CBR_RSSIthreshold = GetRSSIthreshold(RefSensitivity);
-  CBR_RSSIthreshold = -88.0;
+  CBR_RSSIthreshold = -95.83;
 
   NS_LOG_UNCOND("UE reference sensitivity = " << RefSensitivity << " dBm, RSSI threshold = " << CBR_RSSIthreshold << " dBm");
 
@@ -933,7 +933,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::NrV2XSpectrumPhy::OutputPath", StringValue (outputPath)); 
   // Configure the saving period------------------------------------------------------------------------------------
   // Tradeoff between speed of the simulation and memory requirements
-  double SavingPeriod = 0.1; //each 600 ms write to log
+  double SavingPeriod = 0.4; //each 600 ms write to log
   Config::SetDefault ("ns3::NrV2XUeMac::SavingPeriod", DoubleValue (SavingPeriod)); 
   Config::SetDefault ("ns3::NrV2XUePhy::SavingPeriod", DoubleValue (SavingPeriod)); 
   Config::SetDefault ("ns3::NrV2XSpectrumPhy::SavingPeriod", DoubleValue (SavingPeriod)); 
@@ -1063,13 +1063,13 @@ main (int argc, char *argv[])
 //    pospos += GeoCellSize;
 //    xPos += 2000;
     //for 2 node only 
-    //xPos = 0;
-    //yPos = 4;
-    //if (L == (--ueResponders.End()))
-    //  {
-    //      xPos = 0; // Set the X position to your desired value for the last node
-    //      yPos = 8; // Set the Y position to your desired value for the last node
-    //  }
+    /*xPos = 0;
+    yPos = 4;
+    if (L == (--ueResponders.End()))
+      {
+          xPos = 0; // Set the X position to your desired value for the last node
+          yPos = 8; // Set the Y position to your desired value for the last node
+      }*/
     positionAlloc ->Add(Vector(xPos, yPos, 0)); 
   }
 
@@ -1089,10 +1089,10 @@ main (int argc, char *argv[])
 //      VelMob->SetVelocity(Vector(0, 0, 0));     
     else
       VelMob->SetVelocity(Vector(19.44, 0, 0));
-      //if (L == (--ueResponders.End()))
-      //{
-      //    VelMob->SetVelocity(Vector(0, 0, 0));
-      //}
+      /*if (L == (--ueResponders.End()))
+      {
+          VelMob->SetVelocity(Vector(0, 0, 0));
+      }*/
 //      VelMob->SetVelocity(Vector(0, 0, 0));          
   }
   

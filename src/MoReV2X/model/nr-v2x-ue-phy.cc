@@ -859,7 +859,7 @@ NrV2XUePhy::UnimoreReceivedRssi (double rssi, std::vector <int> rbMap, uint16_t 
       {
         mobRX = RxNode->GetObject<MobilityModel>();
         posRX = mobRX->GetPosition();
-        if (posRX.x >= 7000 && posRX.x <= 3300)
+        if (posRX.x >= 1000 && posRX.x <= 4000)
         {
           NrV2XUePhy::UnimoreEvaluateCBR(SF.frameNo, SF.subframeNo);
         }
