@@ -535,7 +535,7 @@ main (int argc, char *argv[])
   uint16_t channelBW = 10; //In MHz, default
   uint16_t channelBW_RBs;
   uint32_t subchannelSize = 10; //Default
-  uint32_t highwayLength = 4000;
+  uint32_t highwayLength = 920;
 
   double keepProbability = 0.7; //P_keep default
 
@@ -1085,11 +1085,11 @@ main (int argc, char *argv[])
     Ptr<MobilityModel> mob = node->GetObject<MobilityModel> ();
     Ptr<ConstantVelocityMobilityModel> VelMob = node->GetObject<ConstantVelocityMobilityModel>();
     if (mob->GetPosition().y > 13)
-      VelMob->SetVelocity(Vector(-19.44, 0, 0));     
+      VelMob->SetVelocity(Vector(0, 0, 0));     
 //      VelMob->SetVelocity(Vector(0, 0, 0));     
     else
-      VelMob->SetVelocity(Vector(19.44, 0, 0));
-      /*if (L == (--ueResponders.End()))
+      VelMob->SetVelocity(Vector(0, 0, 0));
+     /* if (L == (--ueResponders.End()))
       {
           VelMob->SetVelocity(Vector(0, 0, 0));
       }*/

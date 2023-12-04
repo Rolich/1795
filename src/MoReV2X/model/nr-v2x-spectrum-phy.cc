@@ -833,12 +833,12 @@ NrV2XSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
           break;
         }
       }    
-      /*if  ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) {
+      if  ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) {
         std::ofstream RxPowerFile; 
         RxPowerFile.open(m_outputPath + "RxPowerFile.csv", std::ios_base::app);
-        RxPowerFile << mobRX->GetDistanceFrom(tmpMobTX) << "," << totalPowerDbm << "," << totalPowerW << ',' << Simulator::Now()/100000 << std::endl;
+        RxPowerFile << mobRX->GetDistanceFrom(tmpMobTX) << "," << mobRX->GetPosition().x  << "," << mobRX->GetPosition().y << "," << tmpMobTX->GetPosition().x << "," << tmpMobTX->GetPosition().y << "," << totalPowerDbm << "," << totalPowerW << ',' << Simulator::Now()/100000 << std::endl;
         RxPowerFile.close(); 
-      }*/
+      }
 
      //     if (lteV2XSlRxParams->nodeId != 1)
      //     std::cin.get();  
@@ -860,8 +860,11 @@ NrV2XSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
         NS_LOG_INFO("Cannot receive this packet!");
         NodeContainer GlobalContainer = NodeContainer::GetGlobal(); //Used to evaluate the transmitter-receiver distance at spectrum layer
 //        if ((posRX.x >= 1500) && (posRX.x <= 3500) && ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) )
-        if ((posRX.x >= 1000) && (posRX.x <= 4000) && ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) )
+        if ((posRX.x >= 0) && (posRX.x <= 920) && ( lteV2XSlRxParams->nodeId != GetDevice()->GetNode()->GetId()) )
         {
+          /*if (posRX.x>100){
+                    mobRX->SetPosition(Vector(0,mobRX->GetPosition().y, 0));
+          }*/    
           Ptr<Node> TxNode;
           for (NodeContainer::Iterator L = GlobalContainer.Begin(); L != GlobalContainer.End(); ++L) 
           {
@@ -898,8 +901,8 @@ NrV2XSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
             //std::floor(Simulator::Now().GetSeconds()*100)/100 << "," << sci.m_packetID << "," << mobRX->GetDistanceFrom(mobTX) << "," <<  TxNode->GetId() << "," << GetDevice()->GetNode()->GetId() << ",";
             AlePDR.close();
         
-            m_prevPrintTime = Simulator::Now ().GetSeconds ();
-            */
+            m_prevPrintTime = Simulator::Now ().GetSeconds ();*/
+            
 
           if (totalPowerDbm < m_rxSensitivity)
           { 
@@ -1625,7 +1628,8 @@ NrV2XSpectrumPhy::EndRxV2XSlData ()
         if ( (*itTb).first.m_rnti == TxNode->GetId())
         {
           mobTX = TxNode->GetObject<MobilityModel>();
-          posTX = mobTX->GetPosition(); 
+          posTX = mobTX->GetPosition();
+          std::cout << posTX;
           break;
         }
       }
@@ -1912,6 +1916,9 @@ NrV2XSpectrumPhy::EndRxV2XSlData ()
            //     Ptr<MobilityModel> mobTX, mobRX; 
                 mobRX = GetDevice()->GetNode()->GetObject<MobilityModel>();
                 posRX = mobRX->GetPosition();
+                /*if (posRX.x>100){
+                    posRX.x = 0;
+                }*/
                 for (NodeContainer::Iterator L = GlobalContainer.Begin(); L != GlobalContainer.End(); ++L) 
                 {
                   TxNode = *L;
@@ -1923,8 +1930,9 @@ NrV2XSpectrumPhy::EndRxV2XSlData ()
                 }
 
 //                if ((posRX.x >= 1500) && (posRX.x <= 3500))
-                if ((posRX.x >= 1000) && (posRX.x <= 4000))
-                {              
+                if ((posRX.x >= 0) && (posRX.x <= 920))
+                {  
+                            
                   PacketStatus newRx;
                   newRx.rxTime = std::floor(Simulator::Now().GetSeconds()*100)/100;
                   newRx.latency = std::round( (Simulator::Now().GetSeconds() - sci.m_genTime)*10000 )/10000;

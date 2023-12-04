@@ -859,7 +859,7 @@ NrV2XUePhy::UnimoreReceivedRssi (double rssi, std::vector <int> rbMap, uint16_t 
       {
         mobRX = RxNode->GetObject<MobilityModel>();
         posRX = mobRX->GetPosition();
-        if (posRX.x >= 1000 && posRX.x <= 4000)
+        if (posRX.x >= 0 && posRX.x <= 920)
         {
           NrV2XUePhy::UnimoreEvaluateCBR(SF.frameNo, SF.subframeNo);
         }
@@ -991,7 +991,7 @@ NrV2XUePhy::ReceiveNistLteControlMessageList (std::list<Ptr<NistLteControlMessag
       uint16_t rbStartPssch;
       uint16_t rbLenPssch;
       double psschRsrpDb = sci.m_psschRsrpDb;
-      uint32_t CreselRx = std::min (sci.m_CreselRx, uint32_t(1000));
+      uint32_t CreselRx = std::min (sci.m_CreselRx, uint32_t(1000)); // OR CRESEL = 1
       if ((int) sci.m_reservation != 0)
       {
         NS_LOG_INFO ("sci.m_reservation != 0");
