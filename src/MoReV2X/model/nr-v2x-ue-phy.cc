@@ -991,7 +991,7 @@ NrV2XUePhy::ReceiveNistLteControlMessageList (std::list<Ptr<NistLteControlMessag
       uint16_t rbStartPssch;
       uint16_t rbLenPssch;
       double psschRsrpDb = sci.m_psschRsrpDb;
-      uint32_t CreselRx = std::min (sci.m_CreselRx, uint32_t(1000)); // OR CRESEL = 1
+      uint32_t CreselRx = 1; //std::min (sci.m_CreselRx, uint32_t(1000)); //*/
       if ((int) sci.m_reservation != 0)
       {
         NS_LOG_INFO ("sci.m_reservation != 0");

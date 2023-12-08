@@ -193,7 +193,8 @@ GetCresel (double RRI)
      Cresel = uniformCresel ->  GetInteger (5*Cresel_bound,15*Cresel_bound); //Get a random integer in the interval [min, max]
      NS_LOG_DEBUG("RRI " << RRI << ", bound: " << Cresel_bound << ", Cresel: " << Cresel);
    }
-   // OR uint32_t Cresel = 1;       
+   Cresel = 1; 
+   //std::cout << "CRESEL" <<Cresel;
    return Cresel;
 }
 

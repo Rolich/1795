@@ -2398,7 +2398,7 @@ NrV2XUeMac::DoSubframeIndication (uint32_t frameNo, uint32_t subframeNo)
 	 NS_LOG_DEBUG (this << " no BSR received. Assume no data to transfer. Valid grant? " << poolIt->second.m_V2X_grant_received);
          if (poolIt->second.m_V2X_grant_received) // If the UE has a valid reservation
          {
-          //std::cout << "CRESEL" << poolIt->second.m_currentV2XGrant.m_Cresel;
+          std::cout << "CRESEL" << poolIt->second.m_currentV2XGrant.m_Cresel;
            if (poolIt->second.m_currentV2XGrant.m_Cresel > 0 && poolIt->second.m_currentV2XGrant.m_grantTransmissions[1].m_nextReservedFrame == frameNo
                && poolIt->second.m_currentV2XGrant.m_grantTransmissions[1].m_nextReservedSubframe == subframeNo)
            {
