@@ -10,17 +10,16 @@ from collections import defaultdict
 start_time = time.time()
 
 # Specify the file path
-base_path = "/home/alex/MoReV2X/results/Periodic_Dynamic0_avgRRI0_VariableSize0_ReEval0_200_PDB0_867"
+base_path = "Periodic_Dynamic0_avgRRI0_VariableSize0_ReEval0_200_PDB0_867"
 
 # Specify the fields you want to extract
 fields = ['rxTime', 'packetID', 'TxDistance', 'txID', 'rxID', 'decoded', 'lossType']
 
-regions_list = list(range(18))  # Array with indexes of regions
+regions_list = list(range(18)) # Array with indexes of regions
 print(regions_list)
 
 def calculate_pdr_and_average(simulation_num, packet_total, packet_decodedorlost, distance_region_index, regions_list, pkeep):
-    average_clr_matrix = []
-    average_plr_matrix = []
+    average_pdr_matrix = []
 
     # Calculate PDR_matrix
     for key in packet_total:
@@ -52,7 +51,7 @@ def calculate_pdr_and_average(simulation_num, packet_total, packet_decodedorlost
 
         average_pdr_matrix.append([simulation_num, (region_value * 50) + 25, average_pdr, pkeep, region_weights[region_value]])
 
-    output_path = 'CLR_matrix_RC515_weight.txt'
+    output_path = 'PDR_matrix_RC515_weight.txt'
     with open(output_path, 'a') as file:
         np.savetxt(file, average_pdr_matrix, delimiter=',', fmt='%.6f')
 
@@ -185,8 +184,8 @@ def calculate_average_aoi(simulation_num, pir_dict, regions_list, pkeep):
             mean_aoi = -1
             mean_paoi = -1
 
-        average_aoi_matrix.append([simulation_num, (region_value * 50)+25, mean_aoi, pkeep, region_weights[region_value]])
-        average_paoi_matrix.append([simulation_num, (region_value * 50)+25, mean_paoi, pkeep, region_weights[region_value]])              
+        average_aoi_matrix.append([simulation_num, (region_value * 50) + 25, mean_aoi, pkeep, region_weights[region_value]])
+        average_paoi_matrix.append([simulation_num, (region_value * 50) + 25, mean_paoi, pkeep, region_weights[region_value]])              
 
     output_path = 'AoI_matrix_final_RC515_weight.txt'
     with open(output_path, 'a') as file:
@@ -203,8 +202,13 @@ def process_log_file(file_path, packet_total, packet_decoded, packet_collision_l
             values = line.strip().split(',')
             txID = int(values[7])
             rxID = int(values[8])
-            values[6] = float(values[6])
-            current_distance_region_index = round(values[6] / 50)
+            distance_pair = float(values[6])
+            
+            for i, border in enumerate(border_values):
+                if distance_pair <= border:
+                    region_value = i
+                    current_distance_region_index = i
+                    break
 
             distance_region_index[(rxID, txID)] = current_distance_region_index
 
@@ -236,8 +240,9 @@ def process_log_file(file_path, packet_total, packet_decoded, packet_collision_l
 
 
 # MAIN
-start_simulation = 1000
-end_simulation = 1999
+start_simulation = 1000 #number of simulation give infomation about pkeep. If simulation is 1000, pkeep is 0; 1001, pkeep is 0.1 etc. if 1099 pkeep = 0.99
+end_simulation = 1000
+p_keep = 0 
 
 pir_dict = {}  # Dictionary to store PIR data
 
@@ -255,6 +260,7 @@ for simulation_num in range(start_simulation, end_simulation + 1):
     AoI_distance_region_index = {}  # Matrix to store indexes of regions for AoI calculation
     distance = {} # Distance between pairs
     region_weights = {}
+    border_values = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]
 
     pir_dict = defaultdict(lambda: {'rx_times': [], 'pir_values': [], 'pir_squared_values': []})
 
@@ -263,7 +269,7 @@ for simulation_num in range(start_simulation, end_simulation + 1):
 
         # Create a dictionary to store counts of unique pairs in each distance region
         pair_counts_by_region = defaultdict(int)
-        border_values = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]
+        
 
         # Initialize the counts for each region
         pair_counts_by_region = {i: 0 for i in range(len(border_values))}
@@ -280,10 +286,6 @@ for simulation_num in range(start_simulation, end_simulation + 1):
                     AoI_distance_region_index[(rxID_dec, txID_dec)] = i
                     pair_counts_by_region[region_value] += 1
                     break
-            # else:
-                # If the distance is greater than the last border, assign it to the last region
-                # region_value = len(border_values)
-                # pair_counts_by_region[region_value] += 1
 
         # Calculate the total number of unique pairs
         total_unique_pairs = sum(pair_counts_by_region.values())
@@ -298,26 +300,9 @@ for simulation_num in range(start_simulation, end_simulation + 1):
         # Create a structure to hold the weights
         region_weights = {region_value: count / total_unique_pairs for region_value, count in pair_counts_by_region.items()}
 
-        #PDR = calculate_pdr_and_average(simulation_num, packet_total, packet_decoded, distance_region_index, regions_list, float("0." + str(simulation_num % 10)))
-        print(packet_prop_loss)
-        calculate_clr_and_plr(simulation_num, packet_total, packet_collision_loss, packet_prop_loss, distance_region_index, regions_list, float("0." + str(simulation_num % 10)))
-        #calculate_average_aoi(simulation_num, pir_dict, regions_list, float("0." + str(simulation_num % 10)))
-'''    
-# Create a CSV file for distances
-distances_output_path = 'distances.csv'
-with open(distances_output_path, 'w', newline='') as distances_file:
-    distances_writer = csv.writer(distances_file)
-    distances_writer.writerow(['rxID_dec', 'txID_dec', 'distance'])
-
-    # Sort pairs by distance and write them to the CSV file
-    sorted_pairs = sorted(distance.items(), key=lambda x: x[1])  # Sort by distance
-    for pair_key, distance_data in sorted_pairs:
-        rxID_dec, txID_dec = pair_key
-        distance_value = distance_data
-
-        distances_writer.writerow([rxID_dec, txID_dec, distance_value])
-
-'''
+        calculate_pdr_and_average(simulation_num, packet_total, packet_decoded, distance_region_index, regions_list, p_keep)
+        calculate_clr_and_plr(simulation_num, packet_total, packet_collision_loss, packet_prop_loss, distance_region_index, regions_list, p_keep)
+        calculate_average_aoi(simulation_num, pir_dict, regions_list, p_keep)
 
 end_time = time.time()
 print(f"Done successfully! Script running time: {end_time - start_time} seconds.")
